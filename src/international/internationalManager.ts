@@ -55,7 +55,7 @@ export class InternationalManager {
     /**
      * Finds the cheapest sell order
      */
-    getSellOrder(resourceType: ResourceConstant, maxPrice = getAvgPrice(resourceType) * 1.2) {
+    getSellOrder(resourceType: MarketResourceConstant, maxPrice = getAvgPrice(resourceType) * 1.2) {
         const orders = this.orders.sell?.[resourceType] || []
 
         let bestOrder: Order
@@ -72,7 +72,7 @@ export class InternationalManager {
     /**
      * Finds the most expensive buy order
      */
-    getBuyOrder(resourceType: ResourceConstant, minPrice = getAvgPrice(resourceType) * 0.8) {
+    getBuyOrder(resourceType: MarketResourceConstant, minPrice = getAvgPrice(resourceType) * 0.8) {
         const orders = this.orders.buy?.[resourceType] || []
 
         let bestOrder: Order
@@ -80,7 +80,7 @@ export class InternationalManager {
         for (const order of orders) {
             if (order.price <= minPrice) continue
 
-            if (order.price > (bestOrder ? bestOrder.price : Infinity)) bestOrder = order
+            if (order.price > (bestOrder ? bestOrder.price : 0)) bestOrder = order
         }
 
         return bestOrder
@@ -96,18 +96,11 @@ export class InternationalManager {
 
         const minPrice = getAvgPrice(PIXEL, 7) * 0.8
 
-        const orders = Game.market.getAllOrders({ type: ORDER_BUY, resourceType: PIXEL })
-        let bestOrder: Order
+        const order = this.getBuyOrder(PIXEL, minPrice)
 
-        for (const order of orders) {
-            if (order.price <= minPrice) continue
+        if (!order) return
 
-            if (order.price > (bestOrder ? bestOrder.price : 0)) bestOrder = order
-        }
-
-        if (!bestOrder) return
-
-        Game.market.deal(bestOrder.id, Math.min(bestOrder.amount, Game.resources[PIXEL]))
+        Game.market.deal(order.id, Math.min(order.amount, Game.resources[PIXEL]))
     }
 
     advancedGeneratePixel() {
