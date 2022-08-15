@@ -364,6 +364,7 @@ declare global {
         cpu: {
             bucket: number
             usage: number
+            limit: number
         }
 
         memory: {
@@ -1423,7 +1424,9 @@ declare global {
 
         findTotalHealPower(range?: number): number
 
-        advancedRecycle(): void
+        findRecycleTarget(): StructureSpawn | StructureContainer | false
+
+        advancedRecycle(): boolean
 
         advancedRenew(): void
 
@@ -1455,7 +1458,7 @@ declare global {
             type: Reservations,
             target: Id<AnyStoreStructure | Creep | Tombstone | Ruin | Resource>,
             amount: number,
-            resourceType: ResourceConstant,
+            resourceType?: ResourceConstant,
         ): void
 
         /**
@@ -1651,7 +1654,7 @@ declare global {
         /**
          * Recycle Target, the spawn ID the creep is going to recycle
          */
-        RecT: Id<StructureSpawn>
+        RecT: Id<StructureSpawn | StructureContainer> | undefined
 
         /**
          * Ticks Waited for an arbitrary event
@@ -1730,12 +1733,12 @@ declare global {
          * Finds the total free store capacity of this RoomObject
          * @param resourceType A resourceConstant to ensure proper querying of limit store RoomObjects
          */
-        freeStore(resourceType: ResourceConstant): number
+        freeStore(resourceType?: ResourceConstant): number
 
         /**
          * Finds the total free store capacity of a specific resource for this RoomObject
          */
-        freeSpecificStore(resourceType: ResourceConstant): number
+        freeSpecificStore(resourceType?: ResourceConstant): number
     }
 
     interface Resource {
@@ -1840,7 +1843,7 @@ export const loop = function () {
 
     internationalManager.tickReset()
     internationalManager.run()
-/*
+    /*
     let cpu = Game.cpu.getUsed()
 
     console.log(new InternationalManager())
