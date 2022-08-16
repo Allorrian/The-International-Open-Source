@@ -124,7 +124,7 @@ HubHauler.prototype.reserveStorageTransfer = function () {
             let amount = this.freeStore()
 
             this.createReservation('withdraw', terminal.id, amount, resourceType)
-            this.createReservation('transfer', storage.id, amount, resourceType)
+            this.createReservation('transfer', storage.id, amount + this.store[resourceType], resourceType)
             return true
         }
     }
@@ -160,7 +160,7 @@ HubHauler.prototype.reserveTerminalTransfer = function () {
             let amount = this.freeStore()
 
             this.createReservation('withdraw', storage.id, amount, resourceType)
-            this.createReservation('transfer', terminal.id, amount, resourceType)
+            this.createReservation('transfer', terminal.id, amount + this.store[resourceType], resourceType)
             return true
         }
     }
@@ -182,9 +182,9 @@ HubHauler.prototype.reserverHubLinkTransfer = function () {
 
     // If there is unsufficient space to justify a fill
 
-    if (hubLink.store.energy > hubLink.store.getCapacity(RESOURCE_ENERGY) * 0.9) return false
+    if (hubLink.store.getCapacity(RESOURCE_ENERGY) - hubLink.store.energy < 100) return false
 
-    const amount = Math.min(this.freeStore(), hubLink.freeSpecificStore(RESOURCE_ENERGY))
+    const amount = Math.min(this.freeStore(), hubLink.freeSpecificStore())
 
     // FInd a provider
 
@@ -197,7 +197,11 @@ HubHauler.prototype.reserverHubLinkTransfer = function () {
     this.message += 'RHT'
 
     this.createReservation('withdraw', provider.id, amount)
-    this.createReservation('transfer', hubLink.id, amount)
+    this.createReservation(
+        'transfer',
+        hubLink.id,
+        Math.min(this.freeStore() + this.store.energy, hubLink.freeSpecificStore()),
+    )
     return true
 }
 
@@ -226,7 +230,7 @@ HubHauler.prototype.reserveFactoryWithdraw = function () {
     let amount = this.freeStore()
 
     this.createReservation('withdraw', factory.id, amount, RESOURCE_BATTERY)
-    this.createReservation('transfer', target.id, amount, RESOURCE_BATTERY)
+    this.createReservation('transfer', target.id, amount + this.store.battery, RESOURCE_BATTERY)
     return true
 }
 
@@ -238,21 +242,20 @@ HubHauler.prototype.reserveFactoryTransfer = function () {
     const factory = room.structures.factory[0]
     if (!factory) return false
 
-    // Find a target
+    // If there is not enough free store in the factory
+
+    if (factory.freeStore() < this.store.getCapacity()) return false
+
+    // If the ratio of stored batteries to energy is sufficiently high
+    // 100 : 1
+    if (room.findStoredResourceAmount(RESOURCE_BATTERY) * 100 > room.findStoredResourceAmount(RESOURCE_ENERGY))
+        return false
+
+    // Find a provider
 
     let provider
-    if (
-        storage &&
-        storage.freeStore() > this.store.getCapacity() &&
-        storage.store.energy >= factory.store.battery * 100
-    )
-        provider = storage
-    else if (
-        terminal &&
-        terminal.freeStore() > this.store.getCapacity() &&
-        terminal.store.energy >= factory.store.battery * 100
-    )
-        provider = terminal
+    if (storage && storage.store.energy > this.store.getCapacity()) provider = storage
+    else if (terminal && terminal.store.energy > this.store.getCapacity()) provider = terminal
 
     if (!provider) return false
 
@@ -261,7 +264,7 @@ HubHauler.prototype.reserveFactoryTransfer = function () {
     let amount = this.freeStore()
 
     this.createReservation('withdraw', provider.id, amount)
-    this.createReservation('transfer', factory.id, amount)
+    this.createReservation('transfer', factory.id, amount + this.store.energy)
     return true
 }
 /*
