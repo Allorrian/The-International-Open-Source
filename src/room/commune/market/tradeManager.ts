@@ -1,5 +1,5 @@
 import { minerals, terminalResourceTargets } from 'international/constants'
-import { customLog } from 'international/utils'
+import { customLog, getAvgPrice } from 'international/utils'
 import './marketFunctions'
 import { allyManager, RequestTypes } from 'international/simpleAllies'
 import { internationalManager } from 'international/internationalManager'
@@ -220,6 +220,11 @@ export class TradeManager {
     private manageResources() {
         const { room } = this.communeManager
         const { terminal } = room
+        this.runNewVersion()
+        return
+
+        let resourceType: ResourceConstant
+        let targetAmount = 8000
 
         for (const resourceTarget of terminalResourceTargets) {
             if (resourceTarget.conditions && !resourceTarget.conditions(this.communeManager)) continue
@@ -259,18 +264,16 @@ export class TradeManager {
         //if (this.room.memory.trading === undefined) this.room.memory.trading = {}
         //if (this.room.memory.trading.purchaseTarget === undefined) this.room.memory.trading.purchaseTarget = {}
 
-        if (Game.cpu.bucket > 6000 || (Game.cpu.bucket > 3000 && Game.time % 10 == 0)) {
-            this.doTransfers()
-        }
+        this.doTransfers()
 
-        if (this.room.name != 'W17N16' && this.room.name != 'W21N9' && this.room.name != 'W21N8') return
+
+        //if (this.room.name != 'W17N16' && this.room.name != 'W21N9' && this.room.name != 'W21N8') return
         //This should be below the isTradingPossible check, but that doesn't use the correct
         //  logic.  It needs to use the same work queue that the creep does.
         if (!this.isTradingPossible()) return
 
-        if (Game.cpu.bucket > 6000 || (Game.cpu.bucket > 3000 && Game.time % 10 == 0)) {
-            this.doTrading()
-        }
+        this.doTrading()
+
     }
 
     amountInRoom(resource: ResourceConstant, roomName: string = null) {
@@ -722,7 +725,7 @@ export class TradeManager {
                         adjCost:
                             order.price +
                             (energyPrice * Game.market.calcTransactionCost(1000, this.room.name, order.roomName)) /
-                                1000,
+                            1000,
                         origPrice: order.price,
                     }),
                 ),
@@ -744,7 +747,7 @@ export class TradeManager {
                         adjCost:
                             order.price -
                             (energyPrice * Game.market.calcTransactionCost(1000, this.room.name, order.roomName)) /
-                                1000,
+                            1000,
                         origPrice: order.price,
                     }),
                 ),
@@ -850,7 +853,7 @@ export class TradeManager {
                 this.room.memory.marketData[RESOURCE_ENERGY],
                 (this.room.memory.marketData.sellAvg[RESOURCE_BATTERY] *
                     COMMODITIES[RESOURCE_ENERGY].components[RESOURCE_BATTERY]) /
-                    COMMODITIES[RESOURCE_ENERGY].amount,
+                COMMODITIES[RESOURCE_ENERGY].amount,
             )
             //then the basic resource & the basic resource bars.  But all of these involve energy, so we need to have an energy price to work from.
             //This does not calculate G and GMelt, because those can be obtained from reactions.
@@ -875,24 +878,24 @@ export class TradeManager {
                 for (let comp in COMMODITIES[resource].components) {
                     let amount =
                         COMMODITIES[resource].components[
-                            comp as
-                                | DepositConstant
-                                | CommodityConstant
-                                | MineralConstant
-                                | RESOURCE_ENERGY
-                                | RESOURCE_GHODIUM
+                        comp as
+                        | DepositConstant
+                        | CommodityConstant
+                        | MineralConstant
+                        | RESOURCE_ENERGY
+                        | RESOURCE_GHODIUM
                         ]
                     if (comp == RESOURCE_ENERGY) {
                         buildCost += this.room.memory.marketData.aquire[RESOURCE_ENERGY] * amount
                     } else {
                         buildCost +=
                             this.room.memory.marketData.sellAvg[
-                                comp as
-                                    | DepositConstant
-                                    | CommodityConstant
-                                    | MineralConstant
-                                    | RESOURCE_ENERGY
-                                    | RESOURCE_GHODIUM
+                            comp as
+                            | DepositConstant
+                            | CommodityConstant
+                            | MineralConstant
+                            | RESOURCE_ENERGY
+                            | RESOURCE_GHODIUM
                             ] * amount
                     }
                 }
@@ -936,12 +939,12 @@ export class TradeManager {
                 for (let comp in COMMODITIES[resource].components) {
                     let amount =
                         COMMODITIES[resource].components[
-                            comp as
-                                | DepositConstant
-                                | CommodityConstant
-                                | MineralConstant
-                                | RESOURCE_ENERGY
-                                | RESOURCE_GHODIUM
+                        comp as
+                        | DepositConstant
+                        | CommodityConstant
+                        | MineralConstant
+                        | RESOURCE_ENERGY
+                        | RESOURCE_GHODIUM
                         ]
                     if (comp == RESOURCE_ENERGY) {
                         buildCost += this.room.memory.marketData.aquire[RESOURCE_ENERGY] * amount
@@ -950,12 +953,12 @@ export class TradeManager {
                     } else {
                         buildCost +=
                             this.room.memory.marketData.sellAvg[
-                                comp as
-                                    | DepositConstant
-                                    | CommodityConstant
-                                    | MineralConstant
-                                    | RESOURCE_ENERGY
-                                    | RESOURCE_GHODIUM
+                            comp as
+                            | DepositConstant
+                            | CommodityConstant
+                            | MineralConstant
+                            | RESOURCE_ENERGY
+                            | RESOURCE_GHODIUM
                             ] * amount
                     }
                 }
@@ -997,22 +1000,22 @@ export class TradeManager {
                     for (let comp in COMMODITIES[resource].components) {
                         let amount =
                             COMMODITIES[resource].components[
-                                comp as
-                                    | DepositConstant
-                                    | CommodityConstant
-                                    | MineralConstant
-                                    | RESOURCE_ENERGY
-                                    | RESOURCE_GHODIUM
+                            comp as
+                            | DepositConstant
+                            | CommodityConstant
+                            | MineralConstant
+                            | RESOURCE_ENERGY
+                            | RESOURCE_GHODIUM
                             ]
                         //This will go to undefined if we don't have an aquire cost set.
                         buildCost +=
                             this.room.memory.marketData.aquire[
-                                comp as
-                                    | DepositConstant
-                                    | CommodityConstant
-                                    | MineralConstant
-                                    | RESOURCE_ENERGY
-                                    | RESOURCE_GHODIUM
+                            comp as
+                            | DepositConstant
+                            | CommodityConstant
+                            | MineralConstant
+                            | RESOURCE_ENERGY
+                            | RESOURCE_GHODIUM
                             ] * amount
                     }
                     if (buildCost) {
@@ -1037,7 +1040,7 @@ export class TradeManager {
         remainingAmount: number
         origPrice: number
     }) {
-        if (this.room.name == 'W21N8') {
+        /* if (this.room.name == 'W21N8') {
             // let sellTarget = [
             //     //{ resource: RESOURCE_LEMERGIUM_BAR, sellPast: 0, orderSize: 1000 },
             //     { resource: RESOURCE_ENERGY, sellPast: 500000, orderSize: 20000 },
@@ -1053,7 +1056,10 @@ export class TradeManager {
             ]
             this.extendBuyOrders(purchaseTarget)
         }
-        return
+        return */
+
+        let purchaseTarget = [{ valuePrice: getAvgPrice(RESOURCE_ENERGY), targetAmount: 200000, orderSize: 20000, resource: RESOURCE_ENERGY }]
+        this.extendBuyOrders(purchaseTarget)
 
         if (this.terminal.cooldown > 0) return
 
@@ -1084,13 +1090,13 @@ export class TradeManager {
             if (bestSell && bestSell.adjCost < energyPrice * rate) {
                 console.log(
                     'buying ' +
-                        JSON.stringify(bestSell) +
-                        ' qty: ' +
-                        amountToBuy +
-                        ' energyPrice: ' +
-                        energyPrice +
-                        ' price*rate: ' +
-                        energyPrice * rate,
+                    JSON.stringify(bestSell) +
+                    ' qty: ' +
+                    amountToBuy +
+                    ' energyPrice: ' +
+                    energyPrice +
+                    ' price*rate: ' +
+                    energyPrice * rate,
                 )
                 let result = Game.market.deal(bestSell.orderId, amountToBuy, this.room.name)
                 if (result == OK) return
@@ -1122,6 +1128,7 @@ export class TradeManager {
                 if (result != 0) console.log(result)
             }
         }
+        return
 
         //Don't run the terminal out of energy.
         if (this.room.terminal.store[RESOURCE_ENERGY] < 5000) return
@@ -1195,13 +1202,13 @@ export class TradeManager {
 
             console.log(
                 'buyAt ' +
-                    resource +
-                    ' bestSell: ' +
-                    JSON.stringify(bestSell) +
-                    ' qty: ' +
-                    amountToBuy +
-                    ' avg*rate: ' +
-                    avg * rate,
+                resource +
+                ' bestSell: ' +
+                JSON.stringify(bestSell) +
+                ' qty: ' +
+                amountToBuy +
+                ' avg*rate: ' +
+                avg * rate,
             )
             let result = Game.market.deal(bestSell.orderId, amountToBuy, this.room.name)
             if (result != 0) console.log(result)
@@ -1225,14 +1232,14 @@ export class TradeManager {
             if (result != OK)
                 console.log(
                     'Error ' +
-                        result +
-                        ' while sellAt the order. ' +
-                        JSON.stringify({
-                            orderId: bestSell.orderId,
-                            amount: this.terminal.store[resource],
-                            roomName: this.room.name,
-                            order: Game.market.getOrderById(bestSell.orderId),
-                        }),
+                    result +
+                    ' while sellAt the order. ' +
+                    JSON.stringify({
+                        orderId: bestSell.orderId,
+                        amount: this.terminal.store[resource],
+                        roomName: this.room.name,
+                        order: Game.market.getOrderById(bestSell.orderId),
+                    }),
                 )
             return true
         }
@@ -1262,12 +1269,12 @@ export class TradeManager {
                 if (result != OK) {
                     console.log(
                         'doTrading extendOrder failed in ' +
-                            this.room.name +
-                            ' for ' +
-                            resource +
-                            '.  Error code' +
-                            result +
-                            '.',
+                        this.room.name +
+                        ' for ' +
+                        resource +
+                        '.  Error code' +
+                        result +
+                        '.',
                     )
                 }
             }
@@ -1304,12 +1311,12 @@ export class TradeManager {
                 if (amountToBuy > 0) {
                     console.log(
                         'Creating order: rsc:' +
-                            thisTarget.resource +
-                            ' qty:' +
-                            amountToBuy +
-                            ' price:' +
-                            targetOrderPrice +
-                            JSON.stringify([totalBetweenStorageAndTerminal, thisTarget]),
+                        thisTarget.resource +
+                        ' qty:' +
+                        amountToBuy +
+                        ' price:' +
+                        targetOrderPrice +
+                        JSON.stringify([totalBetweenStorageAndTerminal, thisTarget]),
                     )
                     let result = Game.market.createOrder({
                         roomName: this.room.name,
@@ -1321,15 +1328,15 @@ export class TradeManager {
                     if (result != OK)
                         console.log(
                             'Error ' +
-                                result +
-                                ' while creating the order.' +
-                                JSON.stringify({
-                                    ORDER_BUY,
-                                    resource: thisTarget.resource,
-                                    targetOrderPrice,
-                                    amountToBuy,
-                                    roomName: this.room.name,
-                                }),
+                            result +
+                            ' while creating the order.' +
+                            JSON.stringify({
+                                ORDER_BUY,
+                                resource: thisTarget.resource,
+                                targetOrderPrice,
+                                amountToBuy,
+                                roomName: this.room.name,
+                            }),
                         )
                 }
                 continue
@@ -1345,23 +1352,23 @@ export class TradeManager {
             if (amountToAdjust > 0) {
                 console.log(
                     'Extending order.  ' +
-                        JSON.stringify({
-                            amountToAdjust: amountToAdjust,
-                            totalBetweenStorageAndTerminal: totalBetweenStorageAndTerminal,
-                            buyOrder: buyOrder,
-                        }),
+                    JSON.stringify({
+                        amountToAdjust: amountToAdjust,
+                        totalBetweenStorageAndTerminal: totalBetweenStorageAndTerminal,
+                        buyOrder: buyOrder,
+                    }),
                 )
 
                 let result = Game.market.extendOrder(buyOrder.id, amountToAdjust)
                 if (result != OK) {
                     console.log(
                         'doTrading extendOrder failed in ' +
-                            this.room.name +
-                            ' for ' +
-                            thisTarget.resource +
-                            '.  Error code' +
-                            result +
-                            '.',
+                        this.room.name +
+                        ' for ' +
+                        thisTarget.resource +
+                        '.  Error code' +
+                        result +
+                        '.',
                     )
                 }
             }
@@ -1419,28 +1426,28 @@ export class TradeManager {
                 if (avg * rate < bestSell.adjCost) {
                     console.log(
                         'not buying : ' +
-                            resource +
-                            ' ' +
-                            JSON.stringify(bestSell) +
-                            ' avg*rate:' +
-                            avg * rate +
-                            ' amount:' +
-                            amountToBuy +
-                            '  adj:' +
-                            bestSell.adjCost,
+                        resource +
+                        ' ' +
+                        JSON.stringify(bestSell) +
+                        ' avg*rate:' +
+                        avg * rate +
+                        ' amount:' +
+                        amountToBuy +
+                        '  adj:' +
+                        bestSell.adjCost,
                     )
                     continue
                 }
 
                 console.log(
                     'buying ' +
-                        resource +
-                        ' bestSell: ' +
-                        JSON.stringify(bestSell) +
-                        ' qty: ' +
-                        amountToBuy +
-                        ' avg*rate: ' +
-                        avg * rate,
+                    resource +
+                    ' bestSell: ' +
+                    JSON.stringify(bestSell) +
+                    ' qty: ' +
+                    amountToBuy +
+                    ' avg*rate: ' +
+                    avg * rate,
                 )
                 let result = Game.market.deal(bestSell.orderId, amountToBuy, this.room.name)
                 if (result != 0) console.log(result)
@@ -1514,15 +1521,15 @@ export class TradeManager {
                 if (daysOutside3Sigma >= 6) {
                     console.log(
                         'not selling due to sigma : ' +
-                            resource +
-                            ' ' +
-                            JSON.stringify(bestBuy) +
-                            ' avg:' +
-                            avg +
-                            ' amount:' +
-                            amount +
-                            '  adj:' +
-                            bestBuy.adjCost,
+                        resource +
+                        ' ' +
+                        JSON.stringify(bestBuy) +
+                        ' avg:' +
+                        avg +
+                        ' amount:' +
+                        amount +
+                        '  adj:' +
+                        bestBuy.adjCost,
                     )
                     continue
                 }
@@ -1534,17 +1541,17 @@ export class TradeManager {
 
             console.log(
                 'selling : ' +
-                    resource +
-                    ' ' +
-                    JSON.stringify(bestBuy) +
-                    ' avg:' +
-                    avg +
-                    ' amount:' +
-                    amount +
-                    '  adj:' +
-                    bestBuy.adjCost +
-                    ' oh: ' +
-                    amountOnHand,
+                resource +
+                ' ' +
+                JSON.stringify(bestBuy) +
+                ' avg:' +
+                avg +
+                ' amount:' +
+                amount +
+                '  adj:' +
+                bestBuy.adjCost +
+                ' oh: ' +
+                amountOnHand,
             )
             let result = Game.market.deal(bestBuy.orderId, amount, this.room.name)
             if (result != 0) {
@@ -1625,6 +1632,6 @@ export class TradeManager {
         let energyPrice = this.room.memory.marketData[RESOURCE_ENERGY]
         this.updateSellAvg(energyPrice)
         this.updateBuyAvg(energyPrice)
-        //this.useTerminal(bestOrder)
+        this.useTerminal(bestOrder)
     }
 }
