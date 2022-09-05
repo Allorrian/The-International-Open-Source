@@ -259,7 +259,7 @@ export class TradeManager {
         this.room = this.communeManager.room
         this.terminal = this.room.terminal
 
-        if (!this.room.storage || !this.room.terminal) return
+        if (!this.room.storage && !this.room.terminal) return
 
         //if (this.room.memory.trading === undefined) this.room.memory.trading = {}
         //if (this.room.memory.trading.purchaseTarget === undefined) this.room.memory.trading.purchaseTarget = {}
@@ -283,7 +283,7 @@ export class TradeManager {
         return (
             (room.terminal.store[resource] || 0) +
             (room.storage.store[resource] || 0) +
-            (room.structures.factory ? room.structures.factory[0].store[resource] || 0 : 0)
+            (room.structures.factory[0] ? room.structures.factory[0].store[resource] || 0 : 0)
         )
     }
 
@@ -326,22 +326,14 @@ export class TradeManager {
         //        }
         //    }
 
-        if (Game.shard.name != 'shard3') return false
+        //if (Game.shard.name != 'shard3') return false
 
         //Balance out the energy some.
         let amountOfEnergy = this.amountInRoom(RESOURCE_ENERGY)
+        let terminalRooms = _.filter(Game.rooms, rm => rm.controller && rm.controller.my && rm.storage && rm.terminal)
         if (amountOfEnergy > 450000) {
             let result = _.min(
-                _.filter(
-                    Game.rooms,
-                    rm =>
-                        rm.controller &&
-                        rm.controller.my &&
-                        rm.storage &&
-                        rm.terminal &&
-                        rm.name != 'W19N15' &&
-                        rm.name != 'W15N18',
-                ),
+                terminalRooms,
                 room => (room.terminal.store[RESOURCE_ENERGY] || 0) + (room.storage.store[RESOURCE_ENERGY] || 0),
                 //The TS @type for _min is wrong, it'll return infinity, if there's no results.
             ) as Room | number
@@ -368,17 +360,26 @@ export class TradeManager {
             }
         }
 
-        if (this.room.name == 'W19N15') {
-            for (let resource of [RESOURCE_MIST, RESOURCE_WIRE, RESOURCE_CONDENSATE, RESOURCE_CELL]) {
-                if (this.terminal.store[resource] > 100) {
-                    let result = this.terminal.send(resource, this.terminal.store[resource], 'W17N16')
-                    if (result != OK) {
-                        console.log('Error in transfer.  ' + result + resource)
-                    }
-                    return result == OK
-                }
-            }
+        let terminalRoomNames: string[] = []
+        for (const room of terminalRooms) {
+            terminalRoomNames.push(room.name)
         }
+
+        for (const mineral of minerals) {
+            if (this.sendSomeToRooms(mineral, terminalRoomNames)) return true
+        }
+
+        /*         if (this.room.name == 'W19N15') {
+                    for (let resource of [RESOURCE_MIST, RESOURCE_WIRE, RESOURCE_CONDENSATE, RESOURCE_CELL]) {
+                        if (this.terminal.store[resource] > 100) {
+                            let result = this.terminal.send(resource, this.terminal.store[resource], 'W17N16')
+                            if (result != OK) {
+                                console.log('Error in transfer.  ' + result + resource)
+                            }
+                            return result == OK
+                        }
+                    }
+                } */
 
         // if(this.room.name == "W19N15" || this.room.name == "W15N18") {
         //         if(this.amountInRoom(RESOURCE_ENERGY) > 200000 && this.terminal.store[RESOURCE_ENERGY] > 40000) {
@@ -387,230 +388,230 @@ export class TradeManager {
         //     }
         // }
 
-        if (this.sendResourceToRoom(RESOURCE_MIST, ['W14N18'])) return true
-        if (this.sendResourceToRoom(RESOURCE_CONDENSATE, ['W15N18', 'W17N16'])) return true
+        /*         if (this.sendResourceToRoom(RESOURCE_MIST, ['W14N18'])) return true
+                if (this.sendResourceToRoom(RESOURCE_CONDENSATE, ['W15N18', 'W17N16'])) return true
 
-        if (this.sendAllToRooms(RESOURCE_MUSCLE, ['W17N16'])) return true
-        if (this.sendAllToRooms(RESOURCE_TISSUE, ['W18N16'])) return true
-        if (this.sendAllToRooms(RESOURCE_PHLEGM, ['W18N16', 'W15N18'])) return true
-        if (this.sendAllToRooms(RESOURCE_CELL, ['W17N16', 'W15N18'])) return true
-        if (this.sendAllToRooms('XGH2O', ['W17N16'])) return true
+                if (this.sendAllToRooms(RESOURCE_MUSCLE, ['W17N16'])) return true
+                if (this.sendAllToRooms(RESOURCE_TISSUE, ['W18N16'])) return true
+                if (this.sendAllToRooms(RESOURCE_PHLEGM, ['W18N16', 'W15N18'])) return true
+                if (this.sendAllToRooms(RESOURCE_CELL, ['W17N16', 'W15N18'])) return true
+                if (this.sendAllToRooms('XGH2O', ['W17N16'])) return true
 
-        if (this.sendAllToRooms(RESOURCE_WIRE, ['W17N16', 'W18N16', 'W15N18'])) return true
-        if (this.sendAllToRooms(RESOURCE_SWITCH, ['W15N18'])) return true
-        if (this.sendSomeToRooms(RESOURCE_COMPOSITE, ['W18N16'])) return true
-        if (this.sendAllToRooms(RESOURCE_TRANSISTOR, ['W18N16'])) return true
-        if (this.sendAllToRooms(RESOURCE_MICROCHIP, ['W17N16'])) return true
+                if (this.sendAllToRooms(RESOURCE_WIRE, ['W17N16', 'W18N16', 'W15N18'])) return true
+                if (this.sendAllToRooms(RESOURCE_SWITCH, ['W15N18'])) return true
+                if (this.sendSomeToRooms(RESOURCE_COMPOSITE, ['W18N16'])) return true
+                if (this.sendAllToRooms(RESOURCE_TRANSISTOR, ['W18N16'])) return true
+                if (this.sendAllToRooms(RESOURCE_MICROCHIP, ['W17N16'])) return true
 
-        if (
-            this.terminal.store[RESOURCE_CONCENTRATE] > 100 &&
-            this.room.name != 'W18N16' &&
-            this.room.name != 'W15N18'
-        ) {
-            let result = this.terminal.send(RESOURCE_CONCENTRATE, this.terminal.store[RESOURCE_CONCENTRATE], 'W15N18')
-            if (result != OK) {
-                console.log('Error in transfer.  ' + result + RESOURCE_CONCENTRATE)
-            }
-            return result == OK
-        }
-
-        if (
-            this.amountInRoom(RESOURCE_OPS) > this.amountInRoom(RESOURCE_OPS, 'W15N18') * 2 &&
-            this.room.name != 'W15N18' &&
-            this.terminal.store[RESOURCE_OPS]
-        ) {
-            let result = this.terminal.send(
-                RESOURCE_OPS,
-                Math.min(
-                    this.amountInRoom(RESOURCE_OPS) / 2,
-                    this.terminal.store[RESOURCE_OPS],
-                    this.terminal.store[RESOURCE_ENERGY],
-                ),
-                'W15N18',
-            )
-            if (result != OK) {
-                console.log('Error in transfer.  ' + result + RESOURCE_OPS)
-            }
-            return result == OK
-        }
-        if (
-            this.amountInRoom(RESOURCE_OPS) > this.amountInRoom(RESOURCE_OPS, 'W17N16') * 2 &&
-            this.room.name != 'W17N16' &&
-            this.terminal.store[RESOURCE_OPS]
-        ) {
-            let result = this.terminal.send(
-                RESOURCE_OPS,
-                Math.min(
-                    this.amountInRoom(RESOURCE_OPS) / 2,
-                    this.terminal.store[RESOURCE_OPS],
-                    this.terminal.store[RESOURCE_ENERGY],
-                ),
-                'W17N16',
-            )
-            if (result != OK) {
-                console.log('Error in transfer.  ' + result + RESOURCE_OPS)
-            }
-            return result == OK
-        }
-
-        if (
-            this.amountInRoom(RESOURCE_CONCENTRATE) > this.amountInRoom(RESOURCE_CONCENTRATE, 'W18N16') * 2 &&
-            this.room.name != 'W18N16' &&
-            this.terminal.store[RESOURCE_CONCENTRATE]
-        ) {
-            let result = this.terminal.send(
-                RESOURCE_CONCENTRATE,
-                Math.min(
-                    this.amountInRoom(RESOURCE_CONCENTRATE) / 2,
-                    this.terminal.store[RESOURCE_CONCENTRATE],
-                    this.terminal.store[RESOURCE_ENERGY],
-                ),
-                'W18N16',
-            )
-            if (result != OK) {
-                console.log('Error in transfer.  ' + result + RESOURCE_CONCENTRATE)
-            }
-            return result == OK
-        }
-        if (
-            this.amountInRoom(RESOURCE_CONCENTRATE) > this.amountInRoom(RESOURCE_CONCENTRATE, 'W15N18') * 2 &&
-            this.room.name != 'W15N18' &&
-            this.terminal.store[RESOURCE_CONCENTRATE]
-        ) {
-            let result = this.terminal.send(
-                RESOURCE_CONCENTRATE,
-                Math.min(
-                    this.amountInRoom(RESOURCE_CONCENTRATE) / 2,
-                    this.terminal.store[RESOURCE_CONCENTRATE],
-                    this.terminal.store[RESOURCE_ENERGY],
-                ),
-                'W15N18',
-            )
-            if (result != OK) {
-                console.log('Error in transfer.  ' + result + RESOURCE_CONCENTRATE)
-            }
-            return result == OK
-        }
-
-        if (
-            this.amountInRoom(RESOURCE_EXTRACT) > this.amountInRoom(RESOURCE_EXTRACT, 'W18N16') * 2 &&
-            this.room.name != 'W18N16' &&
-            this.terminal.store[RESOURCE_EXTRACT]
-        ) {
-            let result = this.terminal.send(
-                RESOURCE_EXTRACT,
-                Math.min(
-                    this.amountInRoom(RESOURCE_EXTRACT) / 2,
-                    this.terminal.store[RESOURCE_EXTRACT],
-                    this.terminal.store[RESOURCE_ENERGY],
-                ),
-                'W18N16',
-            )
-            if (result != OK) {
-                console.log('Error in transfer.  ' + result + RESOURCE_EXTRACT)
-            }
-            return result == OK
-        }
-
-        if (
-            this.amountInRoom(RESOURCE_KEANIUM_BAR) > this.amountInRoom(RESOURCE_KEANIUM_BAR, 'W17N16') * 2 &&
-            this.room.name != 'W17N16' &&
-            this.terminal.store[RESOURCE_KEANIUM_BAR]
-        ) {
-            let result = this.terminal.send(
-                RESOURCE_KEANIUM_BAR,
-                Math.min(
-                    this.amountInRoom(RESOURCE_KEANIUM_BAR) / 2,
-                    this.terminal.store[RESOURCE_KEANIUM_BAR],
-                    this.terminal.store[RESOURCE_ENERGY],
-                ),
-                'W17N16',
-            )
-            if (result != OK) {
-                console.log('Error in transfer.  ' + result + RESOURCE_KEANIUM_BAR)
-            }
-            return result == OK
-        }
-
-        if (
-            this.amountInRoom(RESOURCE_REDUCTANT) > this.amountInRoom(RESOURCE_REDUCTANT, 'W17N16') * 2 &&
-            this.room.name != 'W17N16' &&
-            this.terminal.store[RESOURCE_REDUCTANT]
-        ) {
-            let result = this.terminal.send(
-                RESOURCE_REDUCTANT,
-                Math.min(
-                    this.amountInRoom(RESOURCE_REDUCTANT) / 2,
-                    this.terminal.store[RESOURCE_REDUCTANT],
-                    this.terminal.store[RESOURCE_ENERGY],
-                ),
-                'W17N16',
-            )
-            if (result != OK) {
-                console.log('Error in transfer.  ' + result + RESOURCE_REDUCTANT)
-            }
-            return result == OK
-        }
-
-        if (
-            this.amountInRoom(RESOURCE_REDUCTANT) > this.amountInRoom(RESOURCE_REDUCTANT, 'W15N18') * 2 &&
-            this.room.name != 'W15N18' &&
-            this.terminal.store[RESOURCE_REDUCTANT]
-        ) {
-            let result = this.terminal.send(
-                RESOURCE_REDUCTANT,
-                Math.min(
-                    this.amountInRoom(RESOURCE_REDUCTANT) / 2,
-                    this.terminal.store[RESOURCE_REDUCTANT],
-                    this.terminal.store[RESOURCE_ENERGY],
-                ),
-                'W15N18',
-            )
-            if (result != OK) {
-                console.log('Error in transfer.  ' + result + RESOURCE_REDUCTANT)
-            }
-            return result == OK
-        }
-
-        if (
-            this.amountInRoom(RESOURCE_REDUCTANT) > this.amountInRoom(RESOURCE_REDUCTANT, 'W18N16') * 2 &&
-            this.room.name != 'W18N16' &&
-            this.terminal.store[RESOURCE_REDUCTANT]
-        ) {
-            let result = this.terminal.send(
-                RESOURCE_REDUCTANT,
-                Math.min(
-                    this.amountInRoom(RESOURCE_REDUCTANT) / 2,
-                    this.terminal.store[RESOURCE_REDUCTANT],
-                    this.terminal.store[RESOURCE_ENERGY],
-                ),
-                'W18N16',
-            )
-            if (result != OK) {
-                console.log('Error in transfer.  ' + result + RESOURCE_REDUCTANT)
-            }
-            return result == OK
-        }
-
-        if (this.sendResourceToRoom(RESOURCE_REDUCTANT, ['W18N16', 'W17N16'])) return true
-        if (this.balanceResourceToRCL8Rooms([RESOURCE_POWER])) {
-        } //this function doesn't return it's bool correctly...  It needs to be re-tested now.
-
-        //Move finished good for final delivery.
-        if (this.room.name != 'W17N16')
-            for (let resource of [RESOURCE_SPIRIT]) {
-                if (this.terminal.store[resource] > 0) {
-                    let result = this.terminal.send(
-                        resource,
-                        Math.min(this.terminal.store[resource], this.terminal.store[RESOURCE_ENERGY]),
-                        'W17N16',
-                    )
+                if (
+                    this.terminal.store[RESOURCE_CONCENTRATE] > 100 &&
+                    this.room.name != 'W18N16' &&
+                    this.room.name != 'W15N18'
+                ) {
+                    let result = this.terminal.send(RESOURCE_CONCENTRATE, this.terminal.store[RESOURCE_CONCENTRATE], 'W15N18')
                     if (result != OK) {
-                        console.log(`Error ${result} in ${resource} transfer.`)
+                        console.log('Error in transfer.  ' + result + RESOURCE_CONCENTRATE)
                     }
                     return result == OK
                 }
-            }
+
+                if (
+                    this.amountInRoom(RESOURCE_OPS) > this.amountInRoom(RESOURCE_OPS, 'W15N18') * 2 &&
+                    this.room.name != 'W15N18' &&
+                    this.terminal.store[RESOURCE_OPS]
+                ) {
+                    let result = this.terminal.send(
+                        RESOURCE_OPS,
+                        Math.min(
+                            this.amountInRoom(RESOURCE_OPS) / 2,
+                            this.terminal.store[RESOURCE_OPS],
+                            this.terminal.store[RESOURCE_ENERGY],
+                        ),
+                        'W15N18',
+                    )
+                    if (result != OK) {
+                        console.log('Error in transfer.  ' + result + RESOURCE_OPS)
+                    }
+                    return result == OK
+                }
+                if (
+                    this.amountInRoom(RESOURCE_OPS) > this.amountInRoom(RESOURCE_OPS, 'W17N16') * 2 &&
+                    this.room.name != 'W17N16' &&
+                    this.terminal.store[RESOURCE_OPS]
+                ) {
+                    let result = this.terminal.send(
+                        RESOURCE_OPS,
+                        Math.min(
+                            this.amountInRoom(RESOURCE_OPS) / 2,
+                            this.terminal.store[RESOURCE_OPS],
+                            this.terminal.store[RESOURCE_ENERGY],
+                        ),
+                        'W17N16',
+                    )
+                    if (result != OK) {
+                        console.log('Error in transfer.  ' + result + RESOURCE_OPS)
+                    }
+                    return result == OK
+                }
+
+                if (
+                    this.amountInRoom(RESOURCE_CONCENTRATE) > this.amountInRoom(RESOURCE_CONCENTRATE, 'W18N16') * 2 &&
+                    this.room.name != 'W18N16' &&
+                    this.terminal.store[RESOURCE_CONCENTRATE]
+                ) {
+                    let result = this.terminal.send(
+                        RESOURCE_CONCENTRATE,
+                        Math.min(
+                            this.amountInRoom(RESOURCE_CONCENTRATE) / 2,
+                            this.terminal.store[RESOURCE_CONCENTRATE],
+                            this.terminal.store[RESOURCE_ENERGY],
+                        ),
+                        'W18N16',
+                    )
+                    if (result != OK) {
+                        console.log('Error in transfer.  ' + result + RESOURCE_CONCENTRATE)
+                    }
+                    return result == OK
+                }
+                if (
+                    this.amountInRoom(RESOURCE_CONCENTRATE) > this.amountInRoom(RESOURCE_CONCENTRATE, 'W15N18') * 2 &&
+                    this.room.name != 'W15N18' &&
+                    this.terminal.store[RESOURCE_CONCENTRATE]
+                ) {
+                    let result = this.terminal.send(
+                        RESOURCE_CONCENTRATE,
+                        Math.min(
+                            this.amountInRoom(RESOURCE_CONCENTRATE) / 2,
+                            this.terminal.store[RESOURCE_CONCENTRATE],
+                            this.terminal.store[RESOURCE_ENERGY],
+                        ),
+                        'W15N18',
+                    )
+                    if (result != OK) {
+                        console.log('Error in transfer.  ' + result + RESOURCE_CONCENTRATE)
+                    }
+                    return result == OK
+                }
+
+                if (
+                    this.amountInRoom(RESOURCE_EXTRACT) > this.amountInRoom(RESOURCE_EXTRACT, 'W18N16') * 2 &&
+                    this.room.name != 'W18N16' &&
+                    this.terminal.store[RESOURCE_EXTRACT]
+                ) {
+                    let result = this.terminal.send(
+                        RESOURCE_EXTRACT,
+                        Math.min(
+                            this.amountInRoom(RESOURCE_EXTRACT) / 2,
+                            this.terminal.store[RESOURCE_EXTRACT],
+                            this.terminal.store[RESOURCE_ENERGY],
+                        ),
+                        'W18N16',
+                    )
+                    if (result != OK) {
+                        console.log('Error in transfer.  ' + result + RESOURCE_EXTRACT)
+                    }
+                    return result == OK
+                }
+
+                if (
+                    this.amountInRoom(RESOURCE_KEANIUM_BAR) > this.amountInRoom(RESOURCE_KEANIUM_BAR, 'W17N16') * 2 &&
+                    this.room.name != 'W17N16' &&
+                    this.terminal.store[RESOURCE_KEANIUM_BAR]
+                ) {
+                    let result = this.terminal.send(
+                        RESOURCE_KEANIUM_BAR,
+                        Math.min(
+                            this.amountInRoom(RESOURCE_KEANIUM_BAR) / 2,
+                            this.terminal.store[RESOURCE_KEANIUM_BAR],
+                            this.terminal.store[RESOURCE_ENERGY],
+                        ),
+                        'W17N16',
+                    )
+                    if (result != OK) {
+                        console.log('Error in transfer.  ' + result + RESOURCE_KEANIUM_BAR)
+                    }
+                    return result == OK
+                }
+
+                if (
+                    this.amountInRoom(RESOURCE_REDUCTANT) > this.amountInRoom(RESOURCE_REDUCTANT, 'W17N16') * 2 &&
+                    this.room.name != 'W17N16' &&
+                    this.terminal.store[RESOURCE_REDUCTANT]
+                ) {
+                    let result = this.terminal.send(
+                        RESOURCE_REDUCTANT,
+                        Math.min(
+                            this.amountInRoom(RESOURCE_REDUCTANT) / 2,
+                            this.terminal.store[RESOURCE_REDUCTANT],
+                            this.terminal.store[RESOURCE_ENERGY],
+                        ),
+                        'W17N16',
+                    )
+                    if (result != OK) {
+                        console.log('Error in transfer.  ' + result + RESOURCE_REDUCTANT)
+                    }
+                    return result == OK
+                }
+
+                if (
+                    this.amountInRoom(RESOURCE_REDUCTANT) > this.amountInRoom(RESOURCE_REDUCTANT, 'W15N18') * 2 &&
+                    this.room.name != 'W15N18' &&
+                    this.terminal.store[RESOURCE_REDUCTANT]
+                ) {
+                    let result = this.terminal.send(
+                        RESOURCE_REDUCTANT,
+                        Math.min(
+                            this.amountInRoom(RESOURCE_REDUCTANT) / 2,
+                            this.terminal.store[RESOURCE_REDUCTANT],
+                            this.terminal.store[RESOURCE_ENERGY],
+                        ),
+                        'W15N18',
+                    )
+                    if (result != OK) {
+                        console.log('Error in transfer.  ' + result + RESOURCE_REDUCTANT)
+                    }
+                    return result == OK
+                }
+
+                if (
+                    this.amountInRoom(RESOURCE_REDUCTANT) > this.amountInRoom(RESOURCE_REDUCTANT, 'W18N16') * 2 &&
+                    this.room.name != 'W18N16' &&
+                    this.terminal.store[RESOURCE_REDUCTANT]
+                ) {
+                    let result = this.terminal.send(
+                        RESOURCE_REDUCTANT,
+                        Math.min(
+                            this.amountInRoom(RESOURCE_REDUCTANT) / 2,
+                            this.terminal.store[RESOURCE_REDUCTANT],
+                            this.terminal.store[RESOURCE_ENERGY],
+                        ),
+                        'W18N16',
+                    )
+                    if (result != OK) {
+                        console.log('Error in transfer.  ' + result + RESOURCE_REDUCTANT)
+                    }
+                    return result == OK
+                }
+
+                if (this.sendResourceToRoom(RESOURCE_REDUCTANT, ['W18N16', 'W17N16'])) return true
+                if (this.balanceResourceToRCL8Rooms([RESOURCE_POWER])) {
+                } //this function doesn't return it's bool correctly...  It needs to be re-tested now.
+
+                //Move finished good for final delivery.
+                if (this.room.name != 'W17N16')
+                    for (let resource of [RESOURCE_SPIRIT]) {
+                        if (this.terminal.store[resource] > 0) {
+                            let result = this.terminal.send(
+                                resource,
+                                Math.min(this.terminal.store[resource], this.terminal.store[RESOURCE_ENERGY]),
+                                'W17N16',
+                            )
+                            if (result != OK) {
+                                console.log(`Error ${result} in ${resource} transfer.`)
+                            }
+                            return result == OK
+                        }
+                    } */
         return false
     }
 
@@ -1056,10 +1057,22 @@ export class TradeManager {
             ]
             this.extendBuyOrders(purchaseTarget)
         }
+<<<<<<< Updated upstream
         return */
 
         let purchaseTarget = [{ valuePrice: getAvgPrice(RESOURCE_ENERGY), targetAmount: 200000, orderSize: 20000, resource: RESOURCE_ENERGY }]
         this.extendBuyOrders(purchaseTarget)
+=======
+<<<<<<< Updated upstream
+        return
+=======
+        return */
+
+        let purchaseTarget = [{ valuePrice: getAvgPrice(RESOURCE_ENERGY), targetAmount: 200000, orderSize: 20000, resource: RESOURCE_ENERGY },
+        { valuePrice: getAvgPrice(RESOURCE_OXYGEN), targetAmount: 5000, orderSize: 2000, resource: RESOURCE_OXYGEN }]
+        this.extendBuyOrders(purchaseTarget)
+>>>>>>> Stashed changes
+>>>>>>> Stashed changes
 
         if (this.terminal.cooldown > 0) return
 
