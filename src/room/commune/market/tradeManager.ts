@@ -1057,22 +1057,12 @@ export class TradeManager {
             ]
             this.extendBuyOrders(purchaseTarget)
         }
-<<<<<<< Updated upstream
-        return */
-
-        let purchaseTarget = [{ valuePrice: getAvgPrice(RESOURCE_ENERGY), targetAmount: 200000, orderSize: 20000, resource: RESOURCE_ENERGY }]
-        this.extendBuyOrders(purchaseTarget)
-=======
-<<<<<<< Updated upstream
-        return
-=======
         return */
 
         let purchaseTarget = [{ valuePrice: getAvgPrice(RESOURCE_ENERGY), targetAmount: 200000, orderSize: 20000, resource: RESOURCE_ENERGY },
         { valuePrice: getAvgPrice(RESOURCE_OXYGEN), targetAmount: 5000, orderSize: 2000, resource: RESOURCE_OXYGEN }]
         this.extendBuyOrders(purchaseTarget)
->>>>>>> Stashed changes
->>>>>>> Stashed changes
+
 
         if (this.terminal.cooldown > 0) return
 
