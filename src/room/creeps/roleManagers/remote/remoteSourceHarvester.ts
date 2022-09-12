@@ -260,6 +260,10 @@ export class RemoteHarvester extends Creep {
                 },
             ],
             avoidEnemyRanges: true,
+            typeWeights: {
+                enemyRemote: Infinity,
+                enemy: Infinity,
+            },
         })
 
         return true

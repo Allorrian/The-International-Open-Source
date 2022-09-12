@@ -1032,10 +1032,10 @@ Room.prototype.spawnRequester = function () {
 
                 const income = Math.max(
                     (isReserved ? 10 : 5) -
-                        Math.floor(
-                            Math.max(remoteMemory.data[RemoteData[remoteHarvesterRoles[index]]], 0) *
-                                minHarvestWorkRatio,
-                        ),
+                    Math.floor(
+                        Math.max(remoteMemory.data[RemoteData[remoteHarvesterRoles[index]]], 0) *
+                        minHarvestWorkRatio,
+                    ),
                     0,
                 )
 
@@ -1293,11 +1293,11 @@ Room.prototype.spawnRequester = function () {
 
                 return {
                     role,
-                    defaultParts: [CLAIM, MOVE],
-                    extraParts: [MOVE, MOVE, MOVE, MOVE],
+                    defaultParts: [MOVE, MOVE, CLAIM, MOVE],
+                    extraParts: [MOVE, MOVE],
                     partsMultiplier: 1,
                     minCreeps: 1,
-                    minCost: 650,
+                    minCost: 750,
                     priority: 8.1,
                     memoryAdditions: {},
                 }

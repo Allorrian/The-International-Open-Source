@@ -109,6 +109,8 @@ export class Vanguard extends Creep {
                         enemy: Infinity,
                         ally: Infinity,
                         keeper: Infinity,
+                        commune: 1,
+                        highway: 1,
                     },
                 }) === 'unpathable'
             ) {
