@@ -1157,30 +1157,30 @@ export class TradeManager {
 
 
         //if(this.tryBuyingStuff([RESOURCE_MIST], energyPrice)) return;
-        if (this.buyAt(RESOURCE_MIST, 80, energyPrice)) return
+        //if (this.buyAt(RESOURCE_MIST, 80, energyPrice)) return
 
         //This is the best price I expect to get cross-shard.  I'd normally expect it on the target shard, but if I find it elsewhere
         //  I'll take it!
-        if (this.sellAt(RESOURCE_SPIRIT, 180000, energyPrice)) return
-        if (this.sellAt(RESOURCE_MUSCLE, 440000, energyPrice)) return
-        if (this.sellAt(RESOURCE_MICROCHIP, 290000, energyPrice)) return
+        //if (this.sellAt(RESOURCE_SPIRIT, 180000, energyPrice)) return
+        //if (this.sellAt(RESOURCE_MUSCLE, 440000, energyPrice)) return
+        //if (this.sellAt(RESOURCE_MICROCHIP, 290000, energyPrice)) return
 
-        if (this.room.name == 'W21N9') {
-            //if(this.tryBuyingStuff([RESOURCE_METAL], energyPrice)) return;
-            //if(this.tryBuyingStuff([RESOURCE_SILICON], energyPrice)) return;
+        //if (this.room.name == 'W21N9') {
+        //if(this.tryBuyingStuff([RESOURCE_METAL], energyPrice)) return;
+        //if(this.tryBuyingStuff([RESOURCE_SILICON], energyPrice)) return;
 
-        }
+        //}
 
-        if (this.room.name == 'W17N16') {
-            //Sell off resources we're making for a profit...
-            //if(this.trySellingOffStuff([RESOURCE_EXTRACT], energyPrice)) return;
-            //Check to see what we want to buy...
-            //if(this.tryBuyingStuff([RESOURCE_CATALYST, RESOURCE_HYDROGEN, RESOURCE_ZYNTHIUM_KEANITE], energyPrice)) return;
-            //let xshard = JSON.parse(InterShardMemory.getRemote("shard2")).market["W21N9"];
-            //if(xshard.buyAvg[RESOURCE_PURIFIER] > 2 * this.room.memory.marketData.aquire[RESOURCE_PURIFIER]) {
-            //    if(this.tryBuyingStuff([RESOURCE_CATALYST], energyPrice, 1.7)) return;
-            //}
-        }
+        //if (this.room.name == 'W17N16') {
+        //Sell off resources we're making for a profit...
+        //if(this.trySellingOffStuff([RESOURCE_EXTRACT], energyPrice)) return;
+        //Check to see what we want to buy...
+        //if(this.tryBuyingStuff([RESOURCE_CATALYST, RESOURCE_HYDROGEN, RESOURCE_ZYNTHIUM_KEANITE], energyPrice)) return;
+        //let xshard = JSON.parse(InterShardMemory.getRemote("shard2")).market["W21N9"];
+        //if(xshard.buyAvg[RESOURCE_PURIFIER] > 2 * this.room.memory.marketData.aquire[RESOURCE_PURIFIER]) {
+        //    if(this.tryBuyingStuff([RESOURCE_CATALYST], energyPrice, 1.7)) return;
+        //}
+        //}
     }
 
     buyAt(resource: ResourceConstant, price: number, energyPrice: number) {
