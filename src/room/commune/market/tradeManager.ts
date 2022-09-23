@@ -1060,7 +1060,8 @@ export class TradeManager {
         return */
 
         let purchaseTarget = [{ valuePrice: getAvgPrice(RESOURCE_ENERGY), targetAmount: 200000, orderSize: 20000, resource: RESOURCE_ENERGY },
-        { valuePrice: getAvgPrice(RESOURCE_OXYGEN), targetAmount: 5000, orderSize: 2000, resource: RESOURCE_OXYGEN }]
+        { valuePrice: getAvgPrice(RESOURCE_OXYGEN), targetAmount: 5000, orderSize: 2000, resource: RESOURCE_OXYGEN },
+        { valuePrice: getAvgPrice(RESOURCE_HYDROGEN), targetAmount: 5000, orderSize: 2000, resource: RESOURCE_HYDROGEN }]
         this.extendBuyOrders(purchaseTarget)
 
 
@@ -1131,10 +1132,29 @@ export class TradeManager {
                 if (result != 0) console.log(result)
             }
         }
-        return
 
         //Don't run the terminal out of energy.
         if (this.room.terminal.store[RESOURCE_ENERGY] < 5000) return
+
+        if (
+            this.trySellingOffStuff(
+                [
+                    RESOURCE_OXIDANT,
+                    RESOURCE_GHODIUM_MELT,
+                    RESOURCE_LEMERGIUM_BAR,
+                    RESOURCE_UTRIUM_BAR,
+                    RESOURCE_PURIFIER,
+                    RESOURCE_REDUCTANT,
+                    RESOURCE_BATTERY,
+                    RESOURCE_KEANIUM_BAR,
+                ],
+                energyPrice,
+            )
+        ) return
+
+        return
+
+
 
         //if(this.tryBuyingStuff([RESOURCE_MIST], energyPrice)) return;
         if (this.buyAt(RESOURCE_MIST, 80, energyPrice)) return
@@ -1148,22 +1168,7 @@ export class TradeManager {
         if (this.room.name == 'W21N9') {
             //if(this.tryBuyingStuff([RESOURCE_METAL], energyPrice)) return;
             //if(this.tryBuyingStuff([RESOURCE_SILICON], energyPrice)) return;
-            if (
-                this.trySellingOffStuff(
-                    [
-                        RESOURCE_OXIDANT,
-                        RESOURCE_GHODIUM_MELT,
-                        RESOURCE_LEMERGIUM_BAR,
-                        RESOURCE_UTRIUM_BAR,
-                        RESOURCE_PURIFIER,
-                        RESOURCE_REDUCTANT,
-                        RESOURCE_BATTERY,
-                        RESOURCE_KEANIUM_BAR,
-                    ],
-                    energyPrice,
-                )
-            )
-                return
+
         }
 
         if (this.room.name == 'W17N16') {
