@@ -1069,7 +1069,7 @@ export class TradeManager {
 
         let energyPrice = this.room.memory.marketData[RESOURCE_ENERGY]
 
-        let targetEnergyLevel = 200000
+        let targetEnergyLevel = 120000
         let totalBetweenStorageAndTerminal =
             (this.terminal.store[RESOURCE_ENERGY] || 0) + (this.room.storage.store[RESOURCE_ENERGY] || 0)
 
@@ -1145,7 +1145,7 @@ export class TradeManager {
                     RESOURCE_UTRIUM_BAR,
                     RESOURCE_PURIFIER,
                     RESOURCE_REDUCTANT,
-                    //RESOURCE_BATTERY,
+                    RESOURCE_BATTERY,
                     RESOURCE_KEANIUM_BAR,
                 ],
                 energyPrice,
