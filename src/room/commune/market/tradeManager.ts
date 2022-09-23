@@ -1145,7 +1145,7 @@ export class TradeManager {
                     RESOURCE_UTRIUM_BAR,
                     RESOURCE_PURIFIER,
                     RESOURCE_REDUCTANT,
-                    RESOURCE_BATTERY,
+                    //RESOURCE_BATTERY,
                     RESOURCE_KEANIUM_BAR,
                 ],
                 energyPrice,
