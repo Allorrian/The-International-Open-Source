@@ -1059,9 +1059,9 @@ export class TradeManager {
         }
         return */
 
-        let purchaseTarget = [{ valuePrice: getAvgPrice(RESOURCE_ENERGY), targetAmount: 200000, orderSize: 20000, resource: RESOURCE_ENERGY },
-        { valuePrice: getAvgPrice(RESOURCE_OXYGEN), targetAmount: 5000, orderSize: 2000, resource: RESOURCE_OXYGEN },
-        { valuePrice: getAvgPrice(RESOURCE_HYDROGEN), targetAmount: 5000, orderSize: 2000, resource: RESOURCE_HYDROGEN }]
+        let purchaseTarget = [{ valuePrice: getAvgPrice(RESOURCE_ENERGY), targetAmount: 120000, orderSize: 20000, resource: RESOURCE_ENERGY },
+        { valuePrice: getAvgPrice(RESOURCE_OXYGEN), targetAmount: 15000, orderSize: 2000, resource: RESOURCE_OXYGEN },
+        { valuePrice: getAvgPrice(RESOURCE_HYDROGEN), targetAmount: 15000, orderSize: 2000, resource: RESOURCE_HYDROGEN }]
         this.extendBuyOrders(purchaseTarget)
 
 
@@ -1084,10 +1084,10 @@ export class TradeManager {
 
             let rate = 1
             if (targetEnergyLevel - totalBetweenStorageAndTerminal > 50000) rate = 1.1
-            // if(targetEnergyLevel - totalBetweenStorageAndTerminal > 100000 )
-            //     rate = 1.2
-            // if(targetEnergyLevel - totalBetweenStorageAndTerminal > 150000 )
-            //     rate = 1.3
+            if (targetEnergyLevel - totalBetweenStorageAndTerminal > 100000)
+                rate = 1.2
+            if (targetEnergyLevel - totalBetweenStorageAndTerminal > 150000)
+                rate = 1.3
 
             let bestSell = this.getBestSell(RESOURCE_ENERGY, energyPrice)
 
@@ -1147,6 +1147,10 @@ export class TradeManager {
                     RESOURCE_REDUCTANT,
                     RESOURCE_BATTERY,
                     RESOURCE_KEANIUM_BAR,
+                    RESOURCE_WIRE,
+                    RESOURCE_CELL,
+                    RESOURCE_ALLOY,
+                    RESOURCE_CONDENSATE
                 ],
                 energyPrice,
             )
@@ -1479,6 +1483,11 @@ export class TradeManager {
             importedResourceCosts[RESOURCE_COMPOSITE] = 30
         }
 
+        let factoryProductionCosts: { [key in ResourceConstant]?: number } = {}
+        factoryProductionCosts[RESOURCE_BATTERY] = energyPrice * 12
+        factoryProductionCosts[RESOURCE_REDUCTANT] = (energyPrice * 2) + (getAvgPrice(RESOURCE_HYDROGEN) * 5)
+        factoryProductionCosts[RESOURCE_OXIDANT] = (energyPrice * 2) + (getAvgPrice(RESOURCE_OXYGEN) * 5)
+
         //Sell off resources we're making for a profit...
         for (let resource of resources) {
             let amountOnHand = (this.room.terminal.store[resource] || 0) + (this.room.storage.store[resource] || 0)
@@ -1510,6 +1519,7 @@ export class TradeManager {
 
             //If this is an item with a high margin, we don't care if we're selling it dirt cheap.
             if (importedResourceCosts[resource] && importedResourceCosts[resource] > bestBuy.adjCost) continue
+            if (factoryProductionCosts[resource] && factoryProductionCosts[resource] > bestBuy.adjCost) continue
 
             let avg = this.room.memory.marketData.buyAvg[resource]
             if (avg * multiplier > bestBuy.adjCost) {

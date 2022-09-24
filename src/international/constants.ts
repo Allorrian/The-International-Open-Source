@@ -18,7 +18,7 @@ export const baseVisuals = false
 /**
  * Default value, do not change. Modify this property in Memory instead
  */
-export const mapVisuals = false
+export const mapVisuals = true
 
 /**
  * Default value, do not change. Modify this property in Memory instead
@@ -52,12 +52,12 @@ export const nonAggressionPlayers = ['Q13214', 'HerrKai', 'clarkok', 'Raggy', 's
 /**
  * Default value, do not change. Modify this property in Memory instead
  */
-export const pixelSelling = false
+export const pixelSelling = true
 
 /**
  * Default value, do not change. Modify this property in Memory instead
  */
-export const pixelGeneration = false
+export const pixelGeneration = true
 
 /**
  * Default value, do not change. Modify this property in Memory instead
@@ -878,13 +878,13 @@ export const remoteRoles: (
     | 'remoteCoreAttacker'
     | 'remoteDismantler'
 )[] = [
-    'source1RemoteHarvester',
-    'source2RemoteHarvester',
-    'remoteReserver',
-    'remoteDefender',
-    'remoteCoreAttacker',
-    'remoteDismantler',
-]
+        'source1RemoteHarvester',
+        'source2RemoteHarvester',
+        'remoteReserver',
+        'remoteDefender',
+        'remoteCoreAttacker',
+        'remoteDismantler',
+    ]
 
 export enum RemoteHarvesterRolesBySourceIndex {
     source1RemoteHarvester,

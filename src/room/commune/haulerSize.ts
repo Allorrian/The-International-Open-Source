@@ -8,14 +8,14 @@ Room.prototype.haulerSizeManager = function () {
 
     memory.HU = haulerUpdateDefault
 
-    const avgCPUUsagePercent = (Memory.stats.cpu.usage || 20) / Game.cpu.limit
+    const avgCPUUsagePercent = 1
 
     // Use to average energy usage percent and the energy capacity availible in the room to determine the max hauler size
 
     memory.MHC =
         (Math.floor(
             Math.max(Math.pow(avgCPUUsagePercent, 1.3) - 0.4, 0) *
-                Math.min(this.energyCapacityAvailable / BODYPART_COST.move, MAX_CREEP_SIZE),
+            Math.min(this.energyCapacityAvailable / BODYPART_COST.move, MAX_CREEP_SIZE),
         ) + this.structures.spawn.length * 2) * BODYPART_COST[CARRY]
 
     /* memory.MHC = Number.MAX_SAFE_INTEGER */
