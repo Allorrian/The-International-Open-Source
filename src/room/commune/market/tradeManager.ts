@@ -1059,9 +1059,14 @@ export class TradeManager {
         }
         return */
 
-        let purchaseTarget = [{ valuePrice: getAvgPrice(RESOURCE_ENERGY), targetAmount: 120000, orderSize: 20000, resource: RESOURCE_ENERGY },
+        let purchaseTarget = [{ valuePrice: getAvgPrice(RESOURCE_ENERGY), targetAmount: 200000, orderSize: 20000, resource: RESOURCE_ENERGY },
         { valuePrice: getAvgPrice(RESOURCE_OXYGEN), targetAmount: 15000, orderSize: 2000, resource: RESOURCE_OXYGEN },
-        { valuePrice: getAvgPrice(RESOURCE_HYDROGEN), targetAmount: 15000, orderSize: 2000, resource: RESOURCE_HYDROGEN }]
+        { valuePrice: getAvgPrice(RESOURCE_HYDROGEN), targetAmount: 15000, orderSize: 2000, resource: RESOURCE_HYDROGEN },
+        { valuePrice: getAvgPrice(RESOURCE_UTRIUM), targetAmount: 15000, orderSize: 2000, resource: RESOURCE_UTRIUM },
+        { valuePrice: getAvgPrice(RESOURCE_KEANIUM), targetAmount: 15000, orderSize: 2000, resource: RESOURCE_KEANIUM },
+        { valuePrice: getAvgPrice(RESOURCE_LEMERGIUM), targetAmount: 15000, orderSize: 2000, resource: RESOURCE_LEMERGIUM },
+        { valuePrice: getAvgPrice(RESOURCE_ZYNTHIUM), targetAmount: 15000, orderSize: 2000, resource: RESOURCE_ZYNTHIUM },
+        { valuePrice: getAvgPrice(RESOURCE_CATALYST), targetAmount: 15000, orderSize: 2000, resource: RESOURCE_CATALYST }]
         this.extendBuyOrders(purchaseTarget)
 
 
@@ -1069,7 +1074,7 @@ export class TradeManager {
 
         let energyPrice = this.room.memory.marketData[RESOURCE_ENERGY]
 
-        let targetEnergyLevel = 120000
+        let targetEnergyLevel = 200000
         let totalBetweenStorageAndTerminal =
             (this.terminal.store[RESOURCE_ENERGY] || 0) + (this.room.storage.store[RESOURCE_ENERGY] || 0)
 
@@ -1150,7 +1155,11 @@ export class TradeManager {
                     RESOURCE_WIRE,
                     RESOURCE_CELL,
                     RESOURCE_ALLOY,
-                    RESOURCE_CONDENSATE
+                    RESOURCE_CONDENSATE,
+                    RESOURCE_HYDROXIDE,
+                    RESOURCE_ZYNTHIUM_KEANITE,
+                    RESOURCE_UTRIUM_LEMERGITE,
+                    RESOURCE_GHODIUM
                 ],
                 energyPrice,
             )
@@ -1470,23 +1479,33 @@ export class TradeManager {
 
     trySellingOffStuff(resources: ResourceConstant[], energyPrice: number): boolean {
         let importedResourceCosts: { [key in ResourceConstant]?: number } = {}
-        if (this.room.name == 'W21N9') {
-            importedResourceCosts[RESOURCE_UTRIUM] = 5
-            importedResourceCosts[RESOURCE_ZYNTHIUM_BAR] = 30
-            importedResourceCosts[RESOURCE_PURIFIER] = 140
-            importedResourceCosts[RESOURCE_OXIDANT] = 65
-            importedResourceCosts[RESOURCE_REDUCTANT] = 120
-            importedResourceCosts[RESOURCE_KEANIUM_BAR] = 20
-            importedResourceCosts[RESOURCE_UTRIUM_BAR] = 40
-        } else {
-            importedResourceCosts[RESOURCE_ZYNTHIUM_BAR] = 20
-            importedResourceCosts[RESOURCE_COMPOSITE] = 30
-        }
+        /*         if (this.room.name == 'W21N9') {
+                    importedResourceCosts[RESOURCE_UTRIUM] = 5
+                    importedResourceCosts[RESOURCE_ZYNTHIUM_BAR] = 30
+                    importedResourceCosts[RESOURCE_PURIFIER] = 140
+                    importedResourceCosts[RESOURCE_OXIDANT] = 65
+                    importedResourceCosts[RESOURCE_REDUCTANT] = 120
+                    importedResourceCosts[RESOURCE_KEANIUM_BAR] = 20
+                    importedResourceCosts[RESOURCE_UTRIUM_BAR] = 40
+                } else {
+                    importedResourceCosts[RESOURCE_ZYNTHIUM_BAR] = 20
+                    importedResourceCosts[RESOURCE_COMPOSITE] = 30
+                } */
 
-        let factoryProductionCosts: { [key in ResourceConstant]?: number } = {}
-        factoryProductionCosts[RESOURCE_BATTERY] = energyPrice * 12
-        factoryProductionCosts[RESOURCE_REDUCTANT] = (energyPrice * 2) + (getAvgPrice(RESOURCE_HYDROGEN) * 5)
-        factoryProductionCosts[RESOURCE_OXIDANT] = (energyPrice * 2) + (getAvgPrice(RESOURCE_OXYGEN) * 5)
+        let productionCosts: { [key in ResourceConstant]?: number } = {}
+        productionCosts[RESOURCE_HYDROXIDE] = getAvgPrice(RESOURCE_HYDROGEN) + getAvgPrice(RESOURCE_OXYGEN)
+        productionCosts[RESOURCE_ZYNTHIUM_KEANITE] = getAvgPrice(RESOURCE_ZYNTHIUM) + getAvgPrice(RESOURCE_KEANIUM)
+        productionCosts[RESOURCE_UTRIUM_LEMERGITE] = getAvgPrice(RESOURCE_UTRIUM) + getAvgPrice(RESOURCE_LEMERGIUM)
+        productionCosts[RESOURCE_GHODIUM] = productionCosts[RESOURCE_ZYNTHIUM_KEANITE] + productionCosts[RESOURCE_UTRIUM_LEMERGITE]
+        productionCosts[RESOURCE_BATTERY] = energyPrice * 12
+        productionCosts[RESOURCE_REDUCTANT] = (energyPrice * 2) + (getAvgPrice(RESOURCE_HYDROGEN) * 5)
+        productionCosts[RESOURCE_OXIDANT] = (energyPrice * 2) + (getAvgPrice(RESOURCE_OXYGEN) * 5)
+        productionCosts[RESOURCE_UTRIUM_BAR] = (energyPrice * 2) + (getAvgPrice(RESOURCE_UTRIUM) * 5)
+        productionCosts[RESOURCE_LEMERGIUM_BAR] = (energyPrice * 2) + (getAvgPrice(RESOURCE_LEMERGIUM) * 5)
+        productionCosts[RESOURCE_ZYNTHIUM_BAR] = (energyPrice * 2) + (getAvgPrice(RESOURCE_ZYNTHIUM) * 5)
+        productionCosts[RESOURCE_KEANIUM_BAR] = (energyPrice * 2) + (getAvgPrice(RESOURCE_KEANIUM) * 5)
+        productionCosts[RESOURCE_GHODIUM_MELT] = (energyPrice * 2) + productionCosts[RESOURCE_GHODIUM]
+        productionCosts[RESOURCE_UTRIUM_BAR] = (energyPrice * 2) + (getAvgPrice(RESOURCE_UTRIUM) * 5)
 
         //Sell off resources we're making for a profit...
         for (let resource of resources) {
@@ -1519,7 +1538,7 @@ export class TradeManager {
 
             //If this is an item with a high margin, we don't care if we're selling it dirt cheap.
             if (importedResourceCosts[resource] && importedResourceCosts[resource] > bestBuy.adjCost) continue
-            if (factoryProductionCosts[resource] && factoryProductionCosts[resource] > bestBuy.adjCost) continue
+            if (productionCosts[resource] && productionCosts[resource] > bestBuy.adjCost) continue
 
             let avg = this.room.memory.marketData.buyAvg[resource]
             if (avg * multiplier > bestBuy.adjCost) {
