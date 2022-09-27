@@ -8,7 +8,7 @@ Room.prototype.haulerSizeManager = function () {
 
     memory.HU = haulerUpdateDefault
 
-    const avgCPUUsagePercent = (Memory.stats.cpu.usage || 20) / Game.cpu.limit
+    const avgCPUUsagePercent = (Memory.stats.cpu.usage || 20) / (Game.cpu.limit * 0.5)
 
     // Use to average energy usage percent and the energy capacity availible in the room to determine the max hauler size
 
