@@ -17,7 +17,6 @@ import {
 import { customLog, findCarryPartsRequired, findRemoteSourcesByEfficacy, getRange } from 'international/utils'
 import { internationalManager } from 'international/internationalManager'
 import { unpackPosList } from 'other/packrat'
-const minRemotePriority = 10
 
 Room.prototype.spawnRequester = function () {
     // If CPU logging is enabled, get the CPU used at the start
@@ -260,7 +259,7 @@ Room.prototype.spawnRequester = function () {
 
     this.constructSpawnRequests(
         ((): SpawnRequestOpts | false => {
-            const priority = Math.min(0.5 + this.creepsFromRoom.hauler.length / 2, minRemotePriority - 3)
+            const priority = 0.5 + this.creepsFromRoom.hauler.length
 
             // Construct the required carry parts
 
@@ -929,6 +928,8 @@ Room.prototype.spawnRequester = function () {
         })(),
     )
 
+    const minRemotePriority = 10
+
     for (const remoteInfo of this.remoteSourceIndexesByEfficacy) {
         const splitRemoteInfo = remoteInfo.split(' ')
         const remoteName = splitRemoteInfo[0]
@@ -1407,8 +1408,8 @@ Room.prototype.spawnRequester = function () {
         )
     }
 
-    for (const requestName of this.memory.combatRequests) {
-        const request = Memory.combatRequests[requestName]
+    for (const requestRoomName of this.memory.combatRequests) {
+        const request = Memory.combatRequests[requestRoomName]
         if (!request) continue
 
         if (request.data[CombatRequestData.abandon] > 0) continue
