@@ -314,7 +314,7 @@ export class InternationalManager {
     get defaultMinCacheAmount() {
         if (this._defaultMinCacheAmount) return this._defaultMinCacheAmount
 
-        const avgCPUUsagePercent = (Memory.stats.cpu.usage || 20) / (Game.cpu.limit * 0.5)
+        const avgCPUUsagePercent = (Memory.stats.cpu.usage || 20) / Game.cpu.limit
 
         return Math.floor(Math.pow(avgCPUUsagePercent * 10, 2.2)) + 1
     }

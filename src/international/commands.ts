@@ -251,10 +251,3 @@ global.deleteBasePlans = function(roomName) {
 
     return 'Deleted base plans for ' + roomName
 }
-
-global.abandonClaimRequest = function (roomName, ticks = 20000) {
-    const request = Memory.claimRequests[roomName];
-    request.abandon = ticks;
-
-    return `Claim request for ${roomName} abandoned for ${ticks} ticks`
-}
