@@ -1060,13 +1060,13 @@ export class TradeManager {
         return */
 
         let purchaseTarget = [{ valuePrice: getAvgPrice(RESOURCE_ENERGY), targetAmount: 200000, orderSize: 20000, resource: RESOURCE_ENERGY },
-        { valuePrice: getAvgPrice(RESOURCE_OXYGEN), targetAmount: 15000, orderSize: 2000, resource: RESOURCE_OXYGEN },
-        { valuePrice: getAvgPrice(RESOURCE_HYDROGEN), targetAmount: 15000, orderSize: 2000, resource: RESOURCE_HYDROGEN },
-        { valuePrice: getAvgPrice(RESOURCE_UTRIUM), targetAmount: 15000, orderSize: 2000, resource: RESOURCE_UTRIUM },
-        { valuePrice: getAvgPrice(RESOURCE_KEANIUM), targetAmount: 15000, orderSize: 2000, resource: RESOURCE_KEANIUM },
-        { valuePrice: getAvgPrice(RESOURCE_LEMERGIUM), targetAmount: 15000, orderSize: 2000, resource: RESOURCE_LEMERGIUM },
-        { valuePrice: getAvgPrice(RESOURCE_ZYNTHIUM), targetAmount: 15000, orderSize: 2000, resource: RESOURCE_ZYNTHIUM },
-        { valuePrice: getAvgPrice(RESOURCE_CATALYST), targetAmount: 15000, orderSize: 2000, resource: RESOURCE_CATALYST }]
+        { valuePrice: getAvgPrice(RESOURCE_OXYGEN) * 0.8, targetAmount: 15000, orderSize: 2000, resource: RESOURCE_OXYGEN },
+        { valuePrice: getAvgPrice(RESOURCE_HYDROGEN) * 0.8, targetAmount: 15000, orderSize: 2000, resource: RESOURCE_HYDROGEN },
+        { valuePrice: getAvgPrice(RESOURCE_UTRIUM) * 0.8, targetAmount: 15000, orderSize: 2000, resource: RESOURCE_UTRIUM },
+        { valuePrice: getAvgPrice(RESOURCE_KEANIUM) * 0.8, targetAmount: 15000, orderSize: 2000, resource: RESOURCE_KEANIUM },
+        { valuePrice: getAvgPrice(RESOURCE_LEMERGIUM) * 0.8, targetAmount: 15000, orderSize: 2000, resource: RESOURCE_LEMERGIUM },
+        { valuePrice: getAvgPrice(RESOURCE_ZYNTHIUM) * 0.8, targetAmount: 15000, orderSize: 2000, resource: RESOURCE_ZYNTHIUM },
+        { valuePrice: getAvgPrice(RESOURCE_CATALYST) * 0.8, targetAmount: 15000, orderSize: 2000, resource: RESOURCE_CATALYST }]
         this.extendBuyOrders(purchaseTarget)
 
 

@@ -2259,6 +2259,7 @@ declare global {
             allyCreepRequest(requestName: string, communeName?: string): string
 
             deleteBasePlans(roomName?: string): string
+            abandonClaimRequest(roomName: string, ticks?: number): string;
         }
     }
 

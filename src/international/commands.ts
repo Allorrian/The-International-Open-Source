@@ -100,9 +100,8 @@ global.destroyStructures = function (roomName, types?) {
 
     // Inform the result
 
-    return `Destroyed a total of ${destroyedStructureCount} structures in ${roomName} ${
-        types ? `with the types ${types}` : ''
-    }`
+    return `Destroyed a total of ${destroyedStructureCount} structures in ${roomName} ${types ? `with the types ${types}` : ''
+        }`
 }
 
 global.destroyCommuneStructures = function (types?) {
@@ -251,4 +250,11 @@ global.deleteBasePlans = function(roomName) {
     delete room.memory.stampAnchors
 
     return 'Deleted base plans for ' + roomName
+}
+
+global.abandonClaimRequest = function (roomName, ticks = 20000) {
+    const request = Memory.claimRequests[roomName];
+    request.abandon = ticks;
+
+    return `Claim request for ${roomName} abandoned for ${ticks} ticks`
 }
