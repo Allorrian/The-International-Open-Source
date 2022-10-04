@@ -1439,7 +1439,7 @@ Room.prototype.spawnRequester = function () {
             this.constructSpawnRequests(
                 ((): SpawnRequestOpts | false => {
                     const role = 'antifaRangedAttacker'
-                    const spawnGroup = internationalManager.creepsByCombatRequest[requestName][role]
+                    const spawnGroup = internationalManager.creepsByCombatRequest[requestRoomName][role]
                     const minCost = minRangedAttackCost + minHealCost
                     const extraParts: BodyPartConstant[] = []
 
@@ -1467,7 +1467,7 @@ Room.prototype.spawnRequester = function () {
                         spawnGroup,
                         minCreeps: request.data[CombatRequestData.quadCount] * 4,
                         memoryAdditions: {
-                            CRN: requestName,
+                            CRN: requestRoomName,
                             SS: 4,
                             ST: 'rangedAttack',
                         },
