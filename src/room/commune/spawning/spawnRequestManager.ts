@@ -52,8 +52,8 @@ Room.prototype.spawnRequester = function () {
                 if (effect) {
                     workAmount += Math.round(
                         POWER_INFO[PWR_REGEN_SOURCE].effect[effect.level - 1] /
-                            POWER_INFO[PWR_REGEN_SOURCE].period /
-                            HARVEST_POWER,
+                        POWER_INFO[PWR_REGEN_SOURCE].period /
+                        HARVEST_POWER,
                     )
                 }
 
@@ -164,8 +164,8 @@ Room.prototype.spawnRequester = function () {
                     if (effect) {
                         workAmount += Math.round(
                             POWER_INFO[PWR_REGEN_SOURCE].effect[effect.level - 1] /
-                                POWER_INFO[PWR_REGEN_SOURCE].period /
-                                HARVEST_POWER,
+                            POWER_INFO[PWR_REGEN_SOURCE].period /
+                            HARVEST_POWER,
                         )
                     }
 
@@ -710,10 +710,7 @@ Room.prototype.spawnRequester = function () {
 
             // If there are enemyAttackers and the controller isn't soon to downgrade
 
-            if (
-                this.controller.ticksToDowngrade > controllerDowngradeUpgraderNeed &&
-                this.towerInferiority
-            )
+            if (this.controller.ticksToDowngrade > controllerDowngradeUpgraderNeed && this.towerInferiority && this.structures.tower.length)
                 return false
 
             // If there is a storage
@@ -1058,7 +1055,7 @@ Room.prototype.spawnRequester = function () {
 
                 if (
                     Math.max(remoteData[RemoteData.source1RemoteHarvester], 0) +
-                        Math.max(remoteData[RemoteData.source2RemoteHarvester], 0) >
+                    Math.max(remoteData[RemoteData.source2RemoteHarvester], 0) >
                     0
                 )
                     return false
@@ -1416,22 +1413,22 @@ Room.prototype.spawnRequester = function () {
 
         const minRangedAttackCost =
             (request.data[CombatRequestData.minDamage] / RANGED_ATTACK_POWER) * BODYPART_COST[RANGED_ATTACK] +
-                (request.data[CombatRequestData.minDamage] / RANGED_ATTACK_POWER) * BODYPART_COST[MOVE] || 0
+            (request.data[CombatRequestData.minDamage] / RANGED_ATTACK_POWER) * BODYPART_COST[MOVE] || 0
         const rangedAttackAmount = minRangedAttackCost / (BODYPART_COST[RANGED_ATTACK] + BODYPART_COST[MOVE])
 
         const minAttackCost =
             (request.data[CombatRequestData.minDamage] / ATTACK_POWER) * BODYPART_COST[ATTACK] +
-                (request.data[CombatRequestData.minDamage] / ATTACK_POWER) * BODYPART_COST[MOVE] || 0
+            (request.data[CombatRequestData.minDamage] / ATTACK_POWER) * BODYPART_COST[MOVE] || 0
         const attackAmount = minAttackCost / (BODYPART_COST[ATTACK] + BODYPART_COST[MOVE])
 
         const minHealCost =
             (request.data[CombatRequestData.minHeal] / HEAL_POWER) * BODYPART_COST[HEAL] +
-                (request.data[CombatRequestData.minHeal] / HEAL_POWER) * BODYPART_COST[MOVE] || 0
+            (request.data[CombatRequestData.minHeal] / HEAL_POWER) * BODYPART_COST[MOVE] || 0
         const healAmount = minHealCost / (BODYPART_COST[HEAL] + BODYPART_COST[MOVE])
 
         const minDismantleCost =
             request.data[CombatRequestData.dismantle] * BODYPART_COST[WORK] +
-                request.data[CombatRequestData.dismantle] * BODYPART_COST[MOVE] || 0
+            request.data[CombatRequestData.dismantle] * BODYPART_COST[MOVE] || 0
 
         if (request.T === 'attack') {
             // Spawn quad
